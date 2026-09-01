@@ -14,6 +14,9 @@ on:
 
 jobs:
   deploy:
+    if: |
+      github.event_name != 'workflow_run'
+      || github.event.workflow_run.conclusion == 'success'
     name: Build & Push ${{ matrix.architecture }}
     runs-on: ${{ matrix.architecture == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
@@ -92,6 +95,9 @@ jobs:
             BUILD_VERSION=${{ steps.version.outputs.version }}
 
   manifest:
+    if: |
+      github.event_name != 'workflow_run'
+      || github.event.workflow_run.conclusion == 'success'
     name: Create Multi-Arch Manifest
     needs: deploy
     runs-on: ubuntu-latest
