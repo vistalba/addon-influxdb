@@ -1,9 +1,10 @@
 ---
 name: InfluxDB
-version: dev
+version: 5.0.2
 slug: influxdb
 description: Scalable datastore for metrics, events, and real-time analytics
 url: https://github.com/vistalba/addon-influxdb
+image: ghcr.io/vistalba/influxdb/{arch}
 codenotary: codenotary@frenck.dev
 ingress: true
 ingress_port: 1337
