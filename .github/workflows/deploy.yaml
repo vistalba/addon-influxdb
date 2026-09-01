@@ -67,12 +67,21 @@ jobs:
             *) echo "::error ::Unknown architecture ${ARCHITECTURE}"; exit 1 ;;
           esac
 
+      - name: Determine registry token
+        id: token
+        run: |
+          if [[ -n "${{ secrets.REGISTRY_TOKEN }}" ]]; then
+            echo "token=${{ secrets.REGISTRY_TOKEN }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ steps.token.outputs.token }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -125,12 +134,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Determine registry token
+        id: token
+        run: |
+          if [[ -n "${{ secrets.REGISTRY_TOKEN }}" ]]; then
+            echo "token=${{ secrets.REGISTRY_TOKEN }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ steps.token.outputs.token }}
 
       - name: Create and push multi-arch manifest
         env:
