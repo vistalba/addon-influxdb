@@ -1,6 +1,6 @@
 ---
 name: InfluxDB
-version: 5.0.3
+version: 5.0.4
 slug: influxdb
 description: Scalable datastore for metrics, events, and real-time analytics
 url: https://github.com/vistalba/addon-influxdb

@@ -6,7 +6,7 @@ Project context for AI developer agents working in this repository.
 
 - A **Home Assistant community add-on** for **InfluxDB** (a time-series database), plus **Chronograf** (admin UI) and **Kapacitor** (stream processing).
 - This is a **maintained successor/fork** of the archived `hassio-addons/addon-influxdb` (the original org is archived; InfluxDB 1.x is end-of-lifed by InfluxData).
-- The add-on bundles: InfluxDB `1.8.10`, Chronograf `1.10.2`, Kapacitor `1.5.9-1`.
+- The add-on bundles: InfluxDB `1.12.4`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`.
 
 ## Repository layout
 
@@ -77,6 +77,8 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 - **Pinned apt versions** in the Dockerfile caused build failures on the newer base image; the fix was to install packages **unpinned**.
 - **armv7 dropped** because base image 9.4.0 only ships amd64/aarch64.
 - **InfluxDB 1.x is EOL** — a future major change would be migrating to InfluxDB 2.x (different config, different ports).
+- **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{version}/` subdirectory with a `-1` build suffix — `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION}/influxdb_${INFLUXDB_VERSION}-1_${ARCH}.deb`. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
+- **InfluxDB 1.13.0** is listed in InfluxData's release notes, but its `.deb` was not downloadable (404) at build time; the latest available 1.x is `1.12.4`.
 - **Node.js 20 deprecation warnings** in Actions are non-blocking (actions run on Node 24).
 
 ## Useful commands
@@ -105,8 +107,8 @@ git merge --ff-only v5.0.4
 git push origin main
 ```
 
-## Current state (as of v5.0.3)
+## Current state (as of v5.0.4)
 
-- `main` tip: `e36cc75` (base image 9.4.0, armv7 dropped, version 5.0.3).
-- `v5.0.3` was released; the Deploy workflow pushed `ghcr.io/vistalba/influxdb/{amd64,aarch64}:5.0.3` + manifest.
+- `main` tip: `d74be6d` (CLAUDE.md added), then the `v5.0.4` component bump (InfluxDB 1.12.4, Chronograf 1.11.4, Kapacitor 1.8.6-1) is merged to `main`.
+- `v5.0.4` release published; the Deploy workflow pushed `ghcr.io/vistalba/influxdb/{amd64,aarch64}:5.0.4` + `:latest` + multi-arch manifest.
 - Open item: set the GHCR package to **Public** so HA users can pull it.
