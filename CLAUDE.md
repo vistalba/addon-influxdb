@@ -77,7 +77,7 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 - **Pinned apt versions** in the Dockerfile caused build failures on the newer base image; the fix was to install packages **unpinned**.
 - **armv7 dropped** because base image 9.4.0 only ships amd64/aarch64.
 - **InfluxDB 1.x is EOL** — a future major change would be migrating to InfluxDB 2.x (different config, different ports).
-- **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{version}/` subdirectory with a `-1` build suffix — `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION}/influxdb_${INFLUXDB_VERSION}-1_${ARCH}.deb`. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
+- **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{base}/` subdirectory, where the base version has no build suffix while the filename carries the `-1` suffix. The Dockerfile keeps the `-1` in the `INFLUXDB_VERSION` arg (like Kapacitor's `1.8.6-1`) and derives the subdirectory by stripping it: `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-1}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb`. This way only the version arg changes on a bump. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
 - **InfluxDB 1.13.0** is listed in InfluxData's release notes, but its `.deb` was not downloadable (404) at build time; the latest available 1.x is `1.12.4`.
 - **Node.js 20 deprecation warnings** in Actions are non-blocking (actions run on Node 24).
 
