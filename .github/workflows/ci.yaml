@@ -12,5 +12,55 @@ on:
   workflow_dispatch:
 
 jobs:
-  workflows:
-    uses: hassio-addons/workflows/.github/workflows/addon-ci.yaml@main
+  build:
+    name: Build ${{ matrix.architecture }}
+    runs-on: ${{ matrix.architecture == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      matrix:
+        architecture: [amd64, aarch64, armv7]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up QEMU
+        if: matrix.architecture == 'armv7'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compose build flags
+        id: flags
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          echo "date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_OUTPUT"
+          from=$(yq --no-colors eval ".build_from.${ARCHITECTURE}" "influxdb/build.yaml")
+          echo "from=${from}" >> "$GITHUB_OUTPUT"
+          case "${ARCHITECTURE}" in
+            amd64) echo "platform=linux/amd64" >> "$GITHUB_OUTPUT" ;;
+            aarch64) echo "platform=linux/arm64/v8" >> "$GITHUB_OUTPUT" ;;
+            armv7) echo "platform=linux/arm/v7" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error ::Unknown architecture ${ARCHITECTURE}"; exit 1 ;;
+          esac
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: influxdb
+          file: influxdb/Dockerfile
+          push: false
+          platforms: ${{ steps.flags.outputs.platform }}
+          build-args: |
+            BUILD_ARCH=${{ matrix.architecture }}
+            BUILD_DATE=${{ steps.flags.outputs.date }}
+            BUILD_DESCRIPTION=Scalable datastore for metrics, events, and real-time analytics
+            BUILD_FROM=${{ steps.flags.outputs.from }}
+            BUILD_NAME=InfluxDB
+            BUILD_REF=${{ github.sha }}
+            BUILD_REPOSITORY=${{ github.repository }}
+            BUILD_VERSION=dev
