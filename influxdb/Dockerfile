@@ -24,7 +24,7 @@ RUN \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then ARCH="arm64"; fi \
     \
     && curl -J -L -o /tmp/influxdb.deb \
-        "https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-1}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb" \
+        "https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-*}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb" \
     \
     && curl -J -L -o /tmp/chronograf.deb \
         "https://dl.influxdata.com/chronograf/releases/chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb" \
