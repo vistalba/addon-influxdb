@@ -1,9 +1,10 @@
 ---
 name: InfluxDB
-version: dev
-slug: influxdb
+version: 5.0.7
+slug: influxdb-vistalba
 description: Scalable datastore for metrics, events, and real-time analytics
-url: https://github.com/hassio-addons/addon-influxdb
+url: https://github.com/vistalba/addon-influxdb
+image: ghcr.io/vistalba/influxdb/{arch}
 codenotary: codenotary@frenck.dev
 ingress: true
 ingress_port: 1337
@@ -15,7 +16,6 @@ hassio_api: true
 arch:
   - aarch64
   - amd64
-  - armv7
 init: false
 map:
   - share:rw

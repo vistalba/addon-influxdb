@@ -13,7 +13,146 @@ on:
       - completed
 
 jobs:
-  workflows:
-    uses: hassio-addons/workflows/.github/workflows/addon-deploy.yaml@main
-    secrets:
-      DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+  deploy:
+    if: |
+      github.event_name != 'workflow_run'
+      || github.event.workflow_run.conclusion == 'success'
+    name: Build & Push ${{ matrix.architecture }}
+    runs-on: ${{ matrix.architecture == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      matrix:
+        architecture: [amd64, aarch64]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          version="${SHA:0:7}"
+          if [[ "${EVENT_NAME}" = "release" ]]; then
+            version="${TAG_NAME}"
+            version="${version,,}"
+            version="${version#v}"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Compose build flags
+        id: flags
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          echo "date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_OUTPUT"
+          from=$(yq --no-colors eval ".build_from.${ARCHITECTURE}" "influxdb/build.yaml")
+          echo "from=${from}" >> "$GITHUB_OUTPUT"
+          case "${ARCHITECTURE}" in
+            amd64) echo "platform=linux/amd64" >> "$GITHUB_OUTPUT" ;;
+            aarch64) echo "platform=linux/arm64/v8" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error ::Unknown architecture ${ARCHITECTURE}"; exit 1 ;;
+          esac
+
+      - name: Determine registry token
+        id: token
+        run: |
+          if [[ -n "${{ secrets.REGISTRY_TOKEN }}" ]]; then
+            echo "token=${{ secrets.REGISTRY_TOKEN }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ steps.token.outputs.token }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: influxdb
+          file: influxdb/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/influxdb/${{ matrix.architecture }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/influxdb/${{ matrix.architecture }}:latest
+          platforms: ${{ steps.flags.outputs.platform }}
+          build-args: |
+            BUILD_ARCH=${{ matrix.architecture }}
+            BUILD_DATE=${{ steps.flags.outputs.date }}
+            BUILD_DESCRIPTION=Scalable datastore for metrics, events, and real-time analytics
+            BUILD_FROM=${{ steps.flags.outputs.from }}
+            BUILD_NAME=InfluxDB
+            BUILD_REF=${{ github.sha }}
+            BUILD_REPOSITORY=${{ github.repository }}
+            BUILD_VERSION=${{ steps.version.outputs.version }}
+
+  manifest:
+    if: |
+      github.event_name != 'workflow_run'
+      || github.event.workflow_run.conclusion == 'success'
+    name: Create Multi-Arch Manifest
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Determine version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          version="${SHA:0:7}"
+          if [[ "${EVENT_NAME}" = "release" ]]; then
+            version="${TAG_NAME}"
+            version="${version,,}"
+            version="${version#v}"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine registry token
+        id: token
+        run: |
+          if [[ -n "${{ secrets.REGISTRY_TOKEN }}" ]]; then
+            echo "token=${{ secrets.REGISTRY_TOKEN }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ steps.token.outputs.token }}
+
+      - name: Create and push multi-arch manifest
+        env:
+          REPO_OWNER: ${{ github.repository_owner }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          sources=(
+            "ghcr.io/${REPO_OWNER}/influxdb/amd64:${VERSION}"
+            "ghcr.io/${REPO_OWNER}/influxdb/aarch64:${VERSION}"
+          )
+          docker buildx imagetools create \
+            --tag "ghcr.io/${REPO_OWNER}/influxdb:${VERSION}" \
+            --tag "ghcr.io/${REPO_OWNER}/influxdb:latest" \
+            "${sources[@]}"
