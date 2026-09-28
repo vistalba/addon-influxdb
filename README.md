@@ -6,7 +6,7 @@ This is a **maintained fork** of the archived [`hassio-addons/addon-influxdb`](h
 
 | Component | Version |
 |---|---|
-| InfluxDB | 1.12.4 |
+| InfluxDB | 1.13.1-1 |
 | Chronograf | 1.11.4 |
 | Kapacitor | 1.8.6-1 |
 | Base image | `ghcr.io/hassio-addons/debian-base/{arch}:9.5.0` |

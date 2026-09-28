@@ -6,7 +6,7 @@ Project context for AI developer agents working in this repository.
 
 - A **Home Assistant community add-on** for **InfluxDB** (a time-series database), plus **Chronograf** (admin UI) and **Kapacitor** (stream processing).
 - This is a **maintained successor/fork** of the archived `hassio-addons/addon-influxdb` (the original org is archived; InfluxDB 1.x is end-of-lifed by InfluxData).
-- The add-on bundles: InfluxDB `1.12.4`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`.
+- The add-on bundles: InfluxDB `1.13.1-1`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`.
 
 ## Repository layout
 
@@ -78,7 +78,7 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 - **armv7 dropped** because base image 9.5.0 only ships amd64/aarch64.
 - **InfluxDB 1.x is EOL** — a future major change would be migrating to InfluxDB 2.x (different config, different ports).
 - **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{base}/` subdirectory, where the base version has no build suffix while the filename carries the build suffix (`-1`, `-2`, `-3`, …). The Dockerfile keeps the build suffix in the `INFLUXDB_VERSION` arg (like Kapacitor's `1.8.6-1`) and derives the subdirectory by stripping everything from the last hyphen: `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-*}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb`. The `%-*` strips any trailing build suffix (`-1`, `-2`, `-3`, …), so only the version arg changes on a bump. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
-- **InfluxDB 1.13.0** is listed in InfluxData's release notes, but its `.deb` was not downloadable (404) at build time; the latest available 1.x is `1.12.4`.
+- **InfluxDB 1.13.0** was listed in InfluxData's release notes but its `.deb` was a 404 at the time; the add-on now ships `1.13.1-1`, which downloads fine via the `v1.13.1/` subdirectory pattern above.
 - **Node.js 20 deprecation warnings** in Actions are non-blocking (actions run on Node 24).
 
 ## Useful commands
@@ -107,8 +107,9 @@ git merge --ff-only v5.0.4
 git push origin main
 ```
 
-## Current state (as of v5.0.4)
+## Current state (as of v5.0.11)
 
-- `main` tip: `d74be6d` (CLAUDE.md added), then the `v5.0.4` component bump (InfluxDB 1.12.4, Chronograf 1.11.4, Kapacitor 1.8.6-1) is merged to `main`.
-- `v5.0.4` release published; the Deploy workflow pushed `ghcr.io/vistalba/influxdb/{amd64,aarch64}:5.0.4` + `:latest` + multi-arch manifest.
-- Open item: set the GHCR package to **Public** so HA users can pull it.
+- `main` tip: `bfa849c` (`v5.0.11`), which hard-reset `main` back to the `5.0.9` state (`4c67f74`) and bumped the version, **abandoning the `5.0.10` upstream merge** (that work is preserved on the `merge-upstream` / `sync-upstream` branches, not on `main`).
+- Bundled components: InfluxDB `1.13.1-1`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`, base image `debian-base/{arch}:9.5.0`.
+- `v5.0.11` CI + Deploy are green; the CI-success Deploy already repointed `:latest` to the good 5.0.11 content. Publishing the `v5.0.11` GitHub Release pushes `:5.0.11` + `:latest`.
+- The `ghcr.io/vistalba/influxdb` package is set to **Public**.
