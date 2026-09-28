@@ -31,13 +31,13 @@ addon-influxdb/
 
 ## Build system
 
-- **Base image:** `ghcr.io/hassio-addons/debian-base/{arch}`. Latest is **9.4.0**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
+- **Base image:** `ghcr.io/hassio-addons/debian-base/{arch}`. Latest is **9.5.0**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
 - **Dockerfile** (`influxdb/Dockerfile`):
   - Installs `libnginx-mod-http-lua`, `luarocks`, `nginx`, `procps` (unpinned — pinned versions broke the build on the new base image).
   - Downloads + installs the three `.deb` packages from `dl.influxdata.com`.
   - `COPY rootfs /` copies the service scripts.
   - Sets `io.hass.*` and OCI image labels from build args.
-- **Supported architectures:** `amd64`, `aarch64`. **armv7 (32-bit) was dropped** because the 9.4.0 base image no longer ships an armv7 variant.
+- **Supported architectures:** `amd64`, `aarch64`. **armv7 (32-bit) was dropped** because the 9.5.0 base image no longer ships an armv7 variant.
 
 ## CI/CD workflows (self-contained)
 
@@ -75,7 +75,7 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 
 - **GHCR package visibility:** the `vistalba/influxdb` package was created via a PAT and defaults to **private**. It must be set to **Public** (GitHub → Packages → package → Settings → Visibility: Public), otherwise HA users can't pull it without auth and it won't appear in the public packages list.
 - **Pinned apt versions** in the Dockerfile caused build failures on the newer base image; the fix was to install packages **unpinned**.
-- **armv7 dropped** because base image 9.4.0 only ships amd64/aarch64.
+- **armv7 dropped** because base image 9.5.0 only ships amd64/aarch64.
 - **InfluxDB 1.x is EOL** — a future major change would be migrating to InfluxDB 2.x (different config, different ports).
 - **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{base}/` subdirectory, where the base version has no build suffix while the filename carries the build suffix (`-1`, `-2`, `-3`, …). The Dockerfile keeps the build suffix in the `INFLUXDB_VERSION` arg (like Kapacitor's `1.8.6-1`) and derives the subdirectory by stripping everything from the last hyphen: `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-*}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb`. The `%-*` strips any trailing build suffix (`-1`, `-2`, `-3`, …), so only the version arg changes on a bump. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
 - **InfluxDB 1.13.0** is listed in InfluxData's release notes, but its `.deb` was not downloadable (404) at build time; the latest available 1.x is `1.12.4`.
