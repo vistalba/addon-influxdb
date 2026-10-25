@@ -1,0 +1,3 @@
+# Keep our self-contained workflow files on every upstream merge
+# (requires: git config merge.ours.driver true)
+.github/workflows/** merge=ours
