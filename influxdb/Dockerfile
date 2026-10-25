@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base/amd64:9.5.0
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.1
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
@@ -8,28 +8,23 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Setup base system
 ARG BUILD_ARCH=amd64
 ARG INFLUXDB_VERSION="1.13.1-1"
-ARG CHRONOGRAF_VERSION="1.11.4"
-ARG KAPACITOR_VERSION="1.8.6-1"
+ARG CHRONOGRAF_VERSION="1.11.6"
+ARG KAPACITOR_VERSION="1.8.8-1"
 RUN \
     apt-get update \
     && apt-get install -y --no-install-recommends \
-        libnginx-mod-http-lua \
-        luarocks \
-        nginx \
-        procps \
-    \
-    && luarocks install lua-resty-http 0.15-0 \
+        nginx=1.26.3-3+deb13u10 \
     \
     && ARCH="${BUILD_ARCH}" \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then ARCH="arm64"; fi \
     \
-    && curl -J -L -o /tmp/influxdb.deb \
+    && curl --fail --silent --show-error -J -L -o /tmp/influxdb.deb \
         "https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-*}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb" \
     \
-    && curl -J -L -o /tmp/chronograf.deb \
+    && curl --fail --silent --show-error -J -L -o /tmp/chronograf.deb \
         "https://dl.influxdata.com/chronograf/releases/chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb" \
     \
-    && curl -J -L -o /tmp/kapacitor.deb \
+    && curl --fail --silent --show-error -J -L -o /tmp/kapacitor.deb \
         "https://dl.influxdata.com/kapacitor/releases/kapacitor_${KAPACITOR_VERSION}_${ARCH}.deb" \
     \
     && dpkg --install /tmp/influxdb.deb \

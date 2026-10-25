@@ -6,7 +6,7 @@ Project context for AI developer agents working in this repository.
 
 - A **Home Assistant community add-on** for **InfluxDB** (a time-series database), plus **Chronograf** (admin UI) and **Kapacitor** (stream processing).
 - This is a **maintained successor/fork** of the archived `hassio-addons/addon-influxdb` (the original org is archived; InfluxDB 1.x is end-of-lifed by InfluxData).
-- The add-on bundles: InfluxDB `1.13.1-1`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`.
+- The add-on bundles: InfluxDB `1.13.1-1`, Chronograf `1.11.6`, Kapacitor `1.8.8-1`.
 
 ## Repository layout
 
@@ -18,7 +18,7 @@ addon-influxdb/
 │   ├── Dockerfile             # builds InfluxDB + Chronograf + Kapacitor
 │   ├── build.yaml            # per-arch base image (debian-base)
 │   ├── config.yaml           # HA add-on manifest (name, version, slug, image, arch, ports, options)
-│   ├── rootfs/              # files copied into the container (services.d, nginx, cont-init.d, etc.)
+│   ├── rootfs/              # files copied into the container (s6-rc.d services, templated nginx/influxdb/kapacitor configs via .gtpl)
 │   ├── DOCS.md
 │   ├── icon.png / logo.png
 │   └── .README.j2
@@ -31,13 +31,13 @@ addon-influxdb/
 
 ## Build system
 
-- **Base image:** `ghcr.io/hassio-addons/debian-base/{arch}`. Latest is **9.5.0**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
+- **Base image:** `ghcr.io/hassio-addons/debian-base` (multi-arch tag). Latest is **9.5.1**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
 - **Dockerfile** (`influxdb/Dockerfile`):
-  - Installs `libnginx-mod-http-lua`, `luarocks`, `nginx`, `procps` (unpinned — pinned versions broke the build on the new base image).
+  - Installs pinned `nginx` only (configs are now rendered from `.gtpl` templates at startup via s6-overlay; no lua/luarocks anymore).
   - Downloads + installs the three `.deb` packages from `dl.influxdata.com`.
-  - `COPY rootfs /` copies the service scripts.
-  - Sets `io.hass.*` and OCI image labels from build args.
-- **Supported architectures:** `amd64`, `aarch64`. **armv7 (32-bit) was dropped** because the 9.5.0 base image no longer ships an armv7 variant.
+  - `COPY rootfs /` copies the s6-rc service scripts and templates.
+  - Sets `io.hass.*` and OCI image labels from build args (fork maintainer/vendor/url labels kept).
+- **Supported architectures:** `amd64`, `aarch64`. **armv7 (32-bit) was dropped** because the 9.5.x base image no longer ships an armv7 variant.
 
 ## CI/CD workflows (self-contained)
 
@@ -74,8 +74,7 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 ## Gotchas / known issues
 
 - **GHCR package visibility:** the `vistalba/influxdb` package was created via a PAT and defaults to **private**. It must be set to **Public** (GitHub → Packages → package → Settings → Visibility: Public), otherwise HA users can't pull it without auth and it won't appear in the public packages list.
-- **Pinned apt versions** in the Dockerfile caused build failures on the newer base image; the fix was to install packages **unpinned**.
-- **armv7 dropped** because base image 9.5.0 only ships amd64/aarch64.
+- **armv7 dropped** because base image 9.5.x only ships amd64/aarch64.
 - **InfluxDB 1.x is EOL** — a future major change would be migrating to InfluxDB 2.x (different config, different ports).
 - **InfluxDB download URL changed in 1.11+**: newer InfluxDB `.deb`s live under a `v{base}/` subdirectory, where the base version has no build suffix while the filename carries the build suffix (`-1`, `-2`, `-3`, …). The Dockerfile keeps the build suffix in the `INFLUXDB_VERSION` arg (like Kapacitor's `1.8.6-1`) and derives the subdirectory by stripping everything from the last hyphen: `https://dl.influxdata.com/influxdb/releases/v${INFLUXDB_VERSION%-*}/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb`. The `%-*` strips any trailing build suffix (`-1`, `-2`, `-3`, …), so only the version arg changes on a bump. Chronograf and Kapacitor still use the flat `/{tool}/releases/{tool}_{ver}_{arch}.deb` layout.
 - **InfluxDB 1.13.0** was listed in InfluxData's release notes but its `.deb` was a 404 at the time; the add-on now ships `1.13.1-1`, which downloads fine via the `v1.13.1/` subdirectory pattern above.
@@ -107,9 +106,9 @@ git merge --ff-only v5.0.4
 git push origin main
 ```
 
-## Current state (as of v5.0.11)
+## Current state (as of v5.0.12)
 
-- `main` tip: `bfa849c` (`v5.0.11`), which hard-reset `main` back to the `5.0.9` state (`4c67f74`) and bumped the version, **abandoning the `5.0.10` upstream merge** (that work is preserved on the `merge-upstream` / `sync-upstream` branches, not on `main`).
-- Bundled components: InfluxDB `1.13.1-1`, Chronograf `1.11.4`, Kapacitor `1.8.6-1`, base image `debian-base/{arch}:9.5.0`.
-- `v5.0.11` CI + Deploy are green; the CI-success Deploy already repointed `:latest` to the good 5.0.11 content. Publishing the `v5.0.11` GitHub Release pushes `:5.0.11` + `:latest`.
+- `main` now contains a **merge of `upstream/main` up to `87f33da`** (hassio-addons/app-influxdb), adopting the upstream restructure to **s6-rc services + `.gtpl` templated configs** (nginx/influxdb/kapacitor), new ports (8089/udp, 9092/tcp), and ulimits.
+- Fork identity preserved: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, vistalba OCI labels, fork README header + migration guide, and **all self-contained `.github/workflows` files** (upstream workflow changes were rejected via `git checkout --ours`).
+- Bundled components: InfluxDB `1.13.1-1`, Chronograf `1.11.6`, Kapacitor `1.8.8-1`, base image `debian-base:9.5.1`, nginx `1.26.3-3+deb13u10`.
 - The `ghcr.io/vistalba/influxdb` package is set to **Public**.

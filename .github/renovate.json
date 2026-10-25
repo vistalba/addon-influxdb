@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["helpers:pinGitHubActionDigests"],
   "rebaseWhen": "behind-base-branch",
   "dependencyDashboard": true,
   "labels": ["dependencies", "no-stale"],
@@ -8,46 +9,89 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["/Dockerfile$", "/build.yaml$"],
+      "managerFilePatterns": ["//Dockerfile$/", "//build.yaml$/"],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "ARG BUILD_FROM=(?<depName>.*?):(?<currentValue>.*?)\\s+",
-        "(aarch64|amd64|armhf|armv7|i386):\\s[\"']?(?<depName>.*?):(?<currentValue>.*?)[\"']?\\s"
+        "(aarch64|amd64):\\s[\"']?(?<depName>.*?):(?<currentValue>.*?)[\"']?\\s"
       ],
       "datasourceTemplate": "docker"
     },
     {
       "customType": "regex",
-      "fileMatch": ["/Dockerfile$"],
+      "managerFilePatterns": ["//Dockerfile$/"],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "\\s\\s(?<package>[a-z0-9][a-z0-9-]+)=(?<currentValue>[a-z0-9-:_+~.]+)\\s+"
       ],
       "versioningTemplate": "deb",
-      "datasourceTemplate": "repology",
-      "depNameTemplate": "debian_11/{{{replace 'libnginx-mod-http-lua' 'nginx' package}}}"
+      "datasourceTemplate": "deb",
+      "depNameTemplate": "{{{package}}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["//Dockerfile$/"],
+      "matchStringsStrategy": "any",
+      "matchStrings": ["ARG INFLUXDB_VERSION=\"(?<currentValue>.*?)\"\\s+"],
+      "depNameTemplate": "influxdata/influxdb",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["//Dockerfile$/"],
+      "matchStringsStrategy": "any",
+      "matchStrings": ["ARG CHRONOGRAF_VERSION=\"(?<currentValue>.*?)\"\\s+"],
+      "depNameTemplate": "influxdata/chronograf",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["//Dockerfile$/"],
+      "matchStringsStrategy": "any",
+      "matchStrings": ["ARG KAPACITOR_VERSION=\"(?<currentValue>.*?)\"\\s+"],
+      "depNameTemplate": "influxdata/kapacitor",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$"
     }
   ],
   "packageRules": [
     {
-      "matchDatasources": ["repology"],
+      "matchDatasources": ["deb"],
+      "registryUrls": [
+        "https://deb.debian.org/debian?suite=trixie&components=main&binaryArch=amd64",
+        "https://deb.debian.org/debian?suite=trixie-updates&components=main&binaryArch=amd64",
+        "https://deb.debian.org/debian-security?suite=trixie-security&components=main&binaryArch=amd64"
+      ],
       "automerge": true
     },
     {
-      "groupName": "Add-on base image",
-      "matchDatasources": ["docker"]
+      "groupName": "App base image",
+      "matchDatasources": ["docker"],
+      "matchDepNames": ["ghcr.io/hassio-addons/debian-base"]
     },
     {
-      "groupName": "Add-on base image",
+      "groupName": "App base image",
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["minor", "patch"],
+      "matchDepNames": ["ghcr.io/hassio-addons/debian-base"],
       "automerge": true
     },
     {
-      "groupName": "NGINX",
-      "matchDatasources": ["repology"],
-      "automerge": true,
-      "matchPackageNames": ["/^debian_.*/.*nginx.*/"]
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["influxdata/influxdb"],
+      "allowedVersions": "<2.0.0"
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": [
+        "influxdata/influxdb",
+        "influxdata/chronograf",
+        "influxdata/kapacitor"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
     }
   ]
 }

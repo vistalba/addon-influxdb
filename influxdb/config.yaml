@@ -1,17 +1,15 @@
 ---
-name: InfluxDB
-version: 5.0.11
+name: InfluxDB v1
+version: 5.0.12
 slug: influxdb-vistalba
-description: Scalable datastore for metrics, events, and real-time analytics
+description: InfluxDB 1.x time series database with Chronograf and Kapacitor
 url: https://github.com/vistalba/addon-influxdb
 image: ghcr.io/vistalba/influxdb/{arch}
-codenotary: codenotary@frenck.dev
 ingress: true
 ingress_port: 1337
 ingress_stream: true
 panel_icon: mdi:chart-areaspline
 startup: services
-homeassistant: 0.92.0b2
 hassio_api: true
 arch:
   - aarch64
@@ -24,14 +22,20 @@ ports:
   80/tcp: null
   8086/tcp: 8086
   8088/tcp: 8088
+  8089/udp: null
+  9092/tcp: null
 ports_description:
-  80/tcp: Web interface (Not required for Ingress)
-  8086/tcp: InfluxDB server
-  8088/tcp: RPC service for backup and restore
+  80/tcp: Chronograf web interface (Not required for Ingress)
+  8086/tcp: InfluxDB HTTP API
+  8088/tcp: InfluxDB RPC service for backup and restore
+  8089/udp: InfluxDB UDP listener (Needs to be enabled using envvars)
+  9092/tcp: Kapacitor HTTP API
+ulimits:
+  nofile: 65535
 auth_api: true
 options:
   auth: true
-  reporting: true
+  reporting: false
   ssl: true
   certfile: fullchain.pem
   keyfile: privkey.pem

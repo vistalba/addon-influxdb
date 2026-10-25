@@ -1,0 +1,13 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community App: InfluxDB
+# Runs the NGINX daemon
+# ==============================================================================
+
+# Wait for Chronograf to become available
+bashio::net.wait_for 8889 localhost 9000
+
+bashio::log.info "Starting NGINX..."
+
+exec nginx

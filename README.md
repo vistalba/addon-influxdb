@@ -7,12 +7,12 @@ This is a **maintained fork** of the archived [`hassio-addons/addon-influxdb`](h
 | Component | Version |
 |---|---|
 | InfluxDB | 1.13.1-1 |
-| Chronograf | 1.11.4 |
-| Kapacitor | 1.8.6-1 |
-| Base image | `ghcr.io/hassio-addons/debian-base/{arch}:9.5.0` |
+| Chronograf | 1.11.6 |
+| Kapacitor | 1.8.8-1 |
+| Base image | `ghcr.io/hassio-addons/debian-base:9.5.1` |
 
 <div style="background-color:#e7f1ff; border-left:4px solid #2f80ed; padding:12px 16px; border-radius:4px;">
-  <strong>ℹ️ 32-bit (<code>armv7</code>) support dropped:</strong> the 9.5.0 base image
+  <strong>ℹ️ 32-bit (<code>armv7</code>) support dropped:</strong> the 9.5.1 base image
   only ships <code>amd64</code> and <code>aarch64</code>.
 </div>
 
@@ -193,38 +193,21 @@ confirmed your backup is intact.
 
 ---
 
-# Home Assistant Community Add-on: InfluxDB
+# Home Assistant Community App: InfluxDB v1
 
 [![GitHub Release][releases-shield]][releases]
 ![Project Stage][project-stage-shield]
 [![License][license-shield]](LICENSE.md)
 
-![Supports aarch64 Architecture][aarch64-shield]
-![Supports amd64 Architecture][amd64-shield]
-![Supports armhf Architecture][armhf-shield]
-![Supports armv7 Architecture][armv7-shield]
-![Supports i386 Architecture][i386-shield]
-
 [![Github Actions][github-actions-shield]][github-actions]
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
-
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
 
 [![Sponsor Frenck via GitHub Sponsors][github-sponsors-shield]][github-sponsors]
 
 [![Support Frenck on Patreon][patreon-shield]][patreon]
 
-Scalable datastore for metrics, events, and real-time analytics.
-
-## Deprecation warning
-
-**This add-on is in a deprecated state!**
-
-This add-on is built on InfluxDB 1.x, which InfluxData has end-of-lifed and
-no longer supports. That makes this add-on obsolete; it will not receive any
-updates anymore and has been removed from our add-on store.
+InfluxDB 1.x time series database with Chronograf and Kapacitor.
 
 ## About
 
@@ -233,14 +216,20 @@ It's useful for recording metrics, sensor data, events,
 and performing analytics. It exposes an HTTP API for client interaction and is
 often used in combination with Grafana to visualize the data.
 
+This app provides the InfluxDB **1.x** series (InfluxQL, the 1.x HTTP API and
+the classic database, user and retention policy model). It is not InfluxDB 2
+or InfluxDB 3; those have a different API, data model and configuration. If
+you are integrating with Home Assistant, use the `influxdb` integration with
+`api_version: 1`, which is the default.
+
 ![Chronograf in the Home Assistant Frontend](images/screenshot.png)
 
-This add-on comes with Chronograf & Kapacitor pre-installed. These provide a
-nice InfluxDB admin interface for managing your users, databases, data
-retention settings, and let you peek inside the database using the Data
+This app comes with Chronograf and Kapacitor pre-installed, which gives you
+a nice InfluxDB admin interface for managing your users, databases and data
+retention settings, and lets you peek inside the database using the Data
 Explorer.
 
-[:books: Read the full add-on documentation][docs]
+[:books: Read the full app documentation][docs]
 
 ## Support
 
@@ -248,14 +237,14 @@ Got questions?
 
 You have several options to get them answered:
 
-- The [Home Assistant Community Add-ons Discord chat server][discord] for add-on
+- The [Home Assistant Community Apps Discord chat server][discord] for app
   support and feature requests.
 - The [Home Assistant Discord chat server][discord-ha] for general Home
   Assistant discussions and questions.
 - The Home Assistant [Community Forum][forum].
 - Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
 
-You could also [open an issue here][issue] GitHub.
+You could also [open an issue here][issue] on GitHub.
 
 ## Contributing
 
@@ -274,18 +263,18 @@ The original setup of this repository is by [Franck Nijhof][frenck].
 For a full list of all authors and contributors,
 check [the contributor's page][contributors].
 
-## We have got some Home Assistant add-ons for you
+## We have got some Home Assistant apps for you
 
 Want some more functionality to your Home Assistant instance?
 
-We have created multiple add-ons for Home Assistant. For a full list, check out
+We have created multiple apps for Home Assistant. For a full list, check out
 our [GitHub Repository][repository].
 
 ## License
 
 MIT License
 
-Copyright (c) 2018-2025 Franck Nijhof
+Copyright (c) 2018-2026 Franck Nijhof
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -305,32 +294,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[armhf-shield]: https://img.shields.io/badge/armhf-no-red.svg
-[armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
-[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/addon-influxdb.svg
-[commits]: https://github.com/hassio-addons/addon-influxdb/commits/main
-[contributors]: https://github.com/hassio-addons/addon-influxdb/graphs/contributors
+[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/app-influxdb.svg
+[commits]: https://github.com/hassio-addons/app-influxdb/commits/main
+[contributors]: https://github.com/hassio-addons/app-influxdb/graphs/contributors
 [discord-ha]: https://discord.gg/c5DvZ4e
-[discord-shield]: https://img.shields.io/discord/478094546522079232.svg
 [discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/addon-influxdb/blob/main/influxdb/DOCS.md
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
+[docs]: https://github.com/hassio-addons/app-influxdb/blob/main/influxdb/DOCS.md
 [forum]: https://community.home-assistant.io/t/home-assistant-community-add-on-influxdb/54491?u=frenck
 [frenck]: https://github.com/frenck
-[github-actions-shield]: https://github.com/hassio-addons/addon-influxdb/workflows/CI/badge.svg
-[github-actions]: https://github.com/hassio-addons/addon-influxdb/actions
+[github-actions-shield]: https://github.com/hassio-addons/app-influxdb/workflows/CI/badge.svg
+[github-actions]: https://github.com/hassio-addons/app-influxdb/actions
 [github-sponsors-shield]: https://frenck.dev/wp-content/uploads/2019/12/github_sponsor.png
 [github-sponsors]: https://github.com/sponsors/frenck
-[i386-shield]: https://img.shields.io/badge/i386-no-red.svg
-[issue]: https://github.com/hassio-addons/addon-influxdb/issues
-[license-shield]: https://img.shields.io/github/license/hassio-addons/addon-influxdb.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
+[issue]: https://github.com/hassio-addons/app-influxdb/issues
+[license-shield]: https://img.shields.io/github/license/hassio-addons/app-influxdb.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg
 [patreon-shield]: https://frenck.dev/wp-content/uploads/2019/12/patreon.png
 [patreon]: https://www.patreon.com/frenck
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-%20!%20DEPRECATED%20%20%20!-ff0000.svg
+[project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
 [reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/hassio-addons/addon-influxdb.svg
-[releases]: https://github.com/hassio-addons/addon-influxdb/releases
+[releases-shield]: https://img.shields.io/github/release/hassio-addons/app-influxdb.svg
+[releases]: https://github.com/hassio-addons/app-influxdb/releases
 [repository]: https://github.com/hassio-addons/repository
