@@ -21,7 +21,7 @@ addon-influxdb/
 │   ├── config.yaml           # HA add-on manifest (name, version, slug, image, arch, ports, options)
 │   ├── changelog.md          # RENDERED IN THE HA UI (add-on dialog -> Changelog tab); read by the supervisor from the git repo
 │   ├── rootfs/              # files copied into the container (s6-rc.d services, templated nginx/influxdb/kapacitor configs via .gtpl)
-│   ├── DOCS.md
+│   ├── DOCS.md               # RENDERED IN THE HA UI (add-on dialog -> Docs tab); carries fork header + migration guide
 │   ├── icon.png / logo.png
 │   └── .README.j2
 ├── .github/workflows/
@@ -106,7 +106,8 @@ Then: cut a `vX.Y.Z` release per the releasing convention above — every upstre
   - `config.yaml`: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, `url: https://github.com/vistalba/addon-influxdb`, our `version:`
   - `Dockerfile`: vistalba `maintainer`/`vendor`/`authors`/`url` OCI labels, `INFLUXDB_VERSION` build-suffix form (`1.13.1-1` + `%-*` URL trick), `KAPACITOR_VERSION` `-1` suffix
   - `README.md`: the fork header block ("maintained fork", component table, armv7 note, migration guide) on top of upstream content
-  - Take upstream's side for everything else (rootfs/s6-rc layout, `.gtpl` templates, DOCS.md, base image and component version bumps).
+  - `DOCS.md` (shown in the HA Docs tab): the fork header blockquote at the top, the "Migrating InfluxDB data between add-ons" section, and the fork link definitions (`[addon]`/`[issue]`/`[releases]`/`[contributors]` → vistalba repo, changelog note)
+  - Take upstream's side for everything else (rootfs/s6-rc layout, `.gtpl` templates, base image and component version bumps).
 - **After merging:** update the component versions in the `README.md` table, add a new version section to **`influxdb/changelog.md`** (the HA UI changelog — the user-facing source of truth; GitHub Releases are never read by HA), and update this file ("What this repository is" + "Current state") to match the `Dockerfile`/`build.yaml`.
 - Reference resolutions: full sync merge `31912fe` (upstream up to `87f33da`, v5.0.12) and version-bump merge to `bed4a9e` (v5.0.13); earlier attempts are on the `merge-upstream` / `sync-upstream` branches.
 
@@ -155,6 +156,6 @@ git push origin main
 ## Current state (as of v5.0.13)
 
 - `main` is synced with **`upstream/main` up to `bed4a9e`** (hassio-addons/app-influxdb). The v5.0.12 merge adopted the upstream restructure to **s6-rc services + `.gtpl` templated configs** (nginx/influxdb/kapacitor), new ports (8089/udp, 9092/tcp), and ulimits; v5.0.13 is a routine upstream version-bump merge.
-- Fork identity preserved: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, vistalba OCI labels, fork README header + migration guide, and **all self-contained `.github/workflows` files** (auto-kept via `merge=ours`).
+- Fork identity preserved: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, vistalba OCI labels, fork README header + migration guide, fork header + migration guide in `influxdb/DOCS.md` (HA Docs tab), `influxdb/changelog.md` (HA Changelog tab), and **all self-contained `.github/workflows` files** (auto-kept via `merge=ours`).
 - Bundled components: InfluxDB `1.13.2-1`, Chronograf `1.11.7`, Kapacitor `1.8.9-1`, base image `debian-base:9.5.2`, nginx `1.26.3-3+deb13u10`.
 - The `ghcr.io/vistalba/influxdb` package is set to **Public**.
