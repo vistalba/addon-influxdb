@@ -1,7 +1,7 @@
 # Changelog
 
 All notable changes to this add-on fork are documented here.
-This is a maintained fork of the archived [`hassio-addons/addon-influxdb`](https://github.com/hassio-addons/addon-influxdb); fork baseline is upstream commit `43f4a6d` ("Mark add-on EOL").
+This is a maintained fork of [`hassio-addons/app-influxdb`](https://github.com/hassio-addons/app-influxdb) (formerly `hassio-addons/addon-influxdb`); fork baseline is upstream commit `43f4a6d` ("Mark add-on EOL"). Upstream was archived at that time but has since been revived and is actively maintained again.
 
 ## 5.0.13 - 2026-11-16
 
@@ -77,4 +77,4 @@ This is a maintained fork of the archived [`hassio-addons/addon-influxdb`](https
 
 ## 5.0.2 and earlier
 
-- Upstream history of the original `hassio-addons/addon-influxdb` (archived/EOL upstream). See the [original repository](https://github.com/hassio-addons/addon-influxdb) for releases up to and including upstream `43f4a6d`.
+- Upstream history of the original `hassio-addons/addon-influxdb` (now [`hassio-addons/app-influxdb`](https://github.com/hassio-addons/app-influxdb)). See the [upstream repository](https://github.com/hassio-addons/app-influxdb) for releases up to and including upstream `43f4a6d` — and for upstream's own releases after its revival.

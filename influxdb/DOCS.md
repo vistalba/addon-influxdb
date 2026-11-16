@@ -1,9 +1,11 @@
 # Home Assistant Community App: InfluxDB v1
 
-> **ℹ️ Maintained fork.** This is a maintained fork of the archived
-> [`hassio-addons/addon-influxdb`](https://github.com/hassio-addons/addon-influxdb)
-> (the original project is archived and InfluxDB 1.x is end-of-lifed by
-> InfluxData). Current components: InfluxDB `1.13.2-1`, Chronograf `1.11.7`,
+> **ℹ️ Maintained fork.** This is a maintained fork of
+> [`hassio-addons/app-influxdb`](https://github.com/hassio-addons/app-influxdb)
+> (formerly `hassio-addons/addon-influxdb`). Upstream was archived and marked
+> EOL when this fork was created, but has since been revived and is actively
+> maintained again; InfluxDB 1.x itself remains end-of-lifed by InfluxData.
+> Current components: InfluxDB `1.13.2-1`, Chronograf `1.11.7`,
 > Kapacitor `1.8.9-1`, base image `ghcr.io/hassio-addons/debian-base:9.5.2`.
 > 32-bit (`armv7`) is **not supported** — the base image ships `amd64` and
 > `aarch64` only. Release notes are shown in the **Changelog** tab of this

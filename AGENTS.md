@@ -6,7 +6,7 @@ Project context for AI developer agents working in this repository.
 ## What this repository is
 
 - A **Home Assistant community add-on** for **InfluxDB** (a time-series database), plus **Chronograf** (admin UI) and **Kapacitor** (stream processing).
-- This is a **maintained successor/fork** of the archived `hassio-addons/addon-influxdb` (the original org is archived; InfluxDB 1.x is end-of-lifed by InfluxData).
+- This is a **maintained fork** of `hassio-addons/app-influxdb` (formerly `hassio-addons/addon-influxdb`). Upstream was archived/EOL when this fork was created, but has since been un-archived, renamed and is actively maintained again (own v5.0.x/v6.x releases). InfluxDB 1.x itself is end-of-lifed by InfluxData. The fork still provides its own slug, GHCR images, self-contained CI/CD and independent release cadence.
 - The add-on bundles: InfluxDB `1.13.2-1`, Chronograf `1.11.7`, Kapacitor `1.8.9-1`.
 
 ## Repository layout
@@ -43,7 +43,7 @@ addon-influxdb/
 
 ## CI/CD workflows (self-contained)
 
-The workflows were rewritten to be **self-contained** — they no longer call the archived `hassio-addons/workflows` shared workflows.
+**CI** and **Deploy** are **self-contained** — they do not call the shared `hassio-addons/workflows` repo (which is maintained again since 2026, but our build/push pipeline stays independent). The auxiliary workflows (`labels`, `pr-labels`, `release-drafter`, `lock`, `stale`) still delegate to `hassio-addons/workflows`.
 
 - **`ci.yaml` (CI):**
   - Triggers on `push`, `pull_request`, `workflow_dispatch`.

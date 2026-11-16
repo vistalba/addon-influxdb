@@ -1,6 +1,6 @@
 # vistalba/addon-influxdb — maintained fork
 
-This is a **maintained fork** of the archived [`hassio-addons/addon-influxdb`](https://github.com/hassio-addons/addon-influxdb).
+This is a **maintained fork** of [`hassio-addons/app-influxdb`](https://github.com/hassio-addons/app-influxdb) (formerly `hassio-addons/addon-influxdb`). Upstream was archived and marked EOL when this fork was created, but has since been un-archived, renamed and is actively maintained again. This fork continues to offer its own add-on slug (`influxdb-vistalba`), own GHCR images, self-contained CI/CD, and an independent release cycle.
 
 ## Current components
 
