@@ -1,6 +1,6 @@
 ---
 name: InfluxDB v1
-version: 5.0.12
+version: 5.0.13
 slug: influxdb-vistalba
 description: InfluxDB 1.x time series database with Chronograf and Kapacitor
 url: https://github.com/vistalba/addon-influxdb

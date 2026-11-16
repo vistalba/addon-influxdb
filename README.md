@@ -6,10 +6,10 @@ This is a **maintained fork** of the archived [`hassio-addons/addon-influxdb`](h
 
 | Component | Version |
 |---|---|
-| InfluxDB | 1.13.1-1 |
-| Chronograf | 1.11.6 |
-| Kapacitor | 1.8.8-1 |
-| Base image | `ghcr.io/hassio-addons/debian-base:9.5.1` |
+| InfluxDB | 1.13.2-1 |
+| Chronograf | 1.11.7 |
+| Kapacitor | 1.8.9-1 |
+| Base image | `ghcr.io/hassio-addons/debian-base:9.5.2` |
 
 <div style="background-color:#e7f1ff; border-left:4px solid #2f80ed; padding:12px 16px; border-radius:4px;">
   <strong>ℹ️ 32-bit (<code>armv7</code>) support dropped:</strong> the 9.5.1 base image

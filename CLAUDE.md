@@ -6,7 +6,7 @@ Project context for AI developer agents working in this repository.
 
 - A **Home Assistant community add-on** for **InfluxDB** (a time-series database), plus **Chronograf** (admin UI) and **Kapacitor** (stream processing).
 - This is a **maintained successor/fork** of the archived `hassio-addons/addon-influxdb` (the original org is archived; InfluxDB 1.x is end-of-lifed by InfluxData).
-- The add-on bundles: InfluxDB `1.13.1-1`, Chronograf `1.11.6`, Kapacitor `1.8.8-1`.
+- The add-on bundles: InfluxDB `1.13.2-1`, Chronograf `1.11.7`, Kapacitor `1.8.9-1`.
 
 ## Repository layout
 
@@ -31,7 +31,7 @@ addon-influxdb/
 
 ## Build system
 
-- **Base image:** `ghcr.io/hassio-addons/debian-base` (multi-arch tag). Latest is **9.5.1**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
+- **Base image:** `ghcr.io/hassio-addons/debian-base` (multi-arch tag). Latest is **9.5.2**, which is published **only for `amd64` and `aarch64`** (no armv7). Declared per-arch in `influxdb/build.yaml`.
 - **Dockerfile** (`influxdb/Dockerfile`):
   - Installs pinned `nginx` only (configs are now rendered from `.gtpl` templates at startup via s6-overlay; no lua/luarocks anymore).
   - Downloads + installs the three `.deb` packages from `dl.influxdata.com`.
@@ -63,6 +63,46 @@ The team's convention: **version bumps happen on a dedicated version branch** (e
 3. Push the branch; CI validates the build.
 4. **Merge the branch into `main`** (fast-forward when possible).
 5. **Create a GitHub Release** with tag `vX.Y.Z`. Publishing it triggers the Deploy workflow, which builds + pushes `ghcr.io/vistalba/influxdb/{arch}:X.Y.Z` + the multi-arch manifest.
+
+## Staying in sync with upstream
+
+The upstream repo is `hassio-addons/app-influxdb`, configured as the `upstream` git remote. `main` carries upstream ancestry (merge commits), so syncing is a plain merge — **no PR against upstream needed**.
+
+### One-time setup per clone (REQUIRED)
+
+The workflow protection relies on a local git config value that does **not** travel with the clone:
+
+```bash
+git config merge.ours.driver true
+```
+
+Without it, `.gitattributes` (`merge=ours` for `.github/workflows/**`) is inert and workflow files will conflict on every merge.
+
+### Sync routine (run whenever upstream has new commits)
+
+```bash
+git fetch upstream
+git checkout main
+git merge upstream/main     # workflows auto-kept via merge=ours
+git push origin main
+```
+
+Then: CI validates the merge → cut a `vX.Y.Z` release branch per the releasing convention above.
+
+### What is protected / what to watch
+
+- **Auto-kept (no conflict):** any file under `.github/workflows/` that both sides modified — our self-contained workflows always win.
+- **Not protected — review after every merge:**
+  - Upstream *adds* a new workflow file → it lands in the repo; delete it in the merge commit if we don't want it.
+  - Upstream *deletes* a workflow we never modified → it is deleted silently; restore with `git checkout HEAD~1 -- <file>` if needed.
+  - Non-workflow conflicts (e.g. `influxdb/Dockerfile`, `influxdb/config.yaml`, `README.md`, `influxdb/build.yaml`) must be resolved by hand.
+- **When resolving conflicts, always keep the fork identity:**
+  - `config.yaml`: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, `url: https://github.com/vistalba/addon-influxdb`, our `version:`
+  - `Dockerfile`: vistalba `maintainer`/`vendor`/`authors`/`url` OCI labels, `INFLUXDB_VERSION` build-suffix form (`1.13.1-1` + `%-*` URL trick), `KAPACITOR_VERSION` `-1` suffix
+  - `README.md`: the fork header block ("maintained fork", component table, armv7 note, migration guide) on top of upstream content
+  - Take upstream's side for everything else (rootfs/s6-rc layout, `.gtpl` templates, DOCS.md, base image and component version bumps).
+- **After merging:** update the component versions in the `README.md` table and in this file ("What this repository is" + "Current state") to match the `Dockerfile`/`build.yaml`.
+- Reference resolutions: full sync merge `31912fe` (upstream up to `87f33da`, v5.0.12) and version-bump merge to `bed4a9e` (v5.0.13); earlier attempts are on the `merge-upstream` / `sync-upstream` branches.
 
 ## Home Assistant repository integration
 
@@ -106,9 +146,9 @@ git merge --ff-only v5.0.4
 git push origin main
 ```
 
-## Current state (as of v5.0.12)
+## Current state (as of v5.0.13)
 
-- `main` now contains a **merge of `upstream/main` up to `87f33da`** (hassio-addons/app-influxdb), adopting the upstream restructure to **s6-rc services + `.gtpl` templated configs** (nginx/influxdb/kapacitor), new ports (8089/udp, 9092/tcp), and ulimits.
-- Fork identity preserved: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, vistalba OCI labels, fork README header + migration guide, and **all self-contained `.github/workflows` files** (upstream workflow changes were rejected via `git checkout --ours`).
-- Bundled components: InfluxDB `1.13.1-1`, Chronograf `1.11.6`, Kapacitor `1.8.8-1`, base image `debian-base:9.5.1`, nginx `1.26.3-3+deb13u10`.
+- `main` is synced with **`upstream/main` up to `bed4a9e`** (hassio-addons/app-influxdb). The v5.0.12 merge adopted the upstream restructure to **s6-rc services + `.gtpl` templated configs** (nginx/influxdb/kapacitor), new ports (8089/udp, 9092/tcp), and ulimits; v5.0.13 is a routine upstream version-bump merge.
+- Fork identity preserved: `slug: influxdb-vistalba`, `image: ghcr.io/vistalba/influxdb/{arch}`, vistalba OCI labels, fork README header + migration guide, and **all self-contained `.github/workflows` files** (auto-kept via `merge=ours`).
+- Bundled components: InfluxDB `1.13.2-1`, Chronograf `1.11.7`, Kapacitor `1.8.9-1`, base image `debian-base:9.5.2`, nginx `1.26.3-3+deb13u10`.
 - The `ghcr.io/vistalba/influxdb` package is set to **Public**.

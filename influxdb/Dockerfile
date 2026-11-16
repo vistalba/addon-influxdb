@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.1
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.2
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
@@ -7,9 +7,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Setup base system
 ARG BUILD_ARCH=amd64
-ARG INFLUXDB_VERSION="1.13.1-1"
-ARG CHRONOGRAF_VERSION="1.11.6"
-ARG KAPACITOR_VERSION="1.8.8-1"
+ARG INFLUXDB_VERSION="1.13.2-1"
+ARG CHRONOGRAF_VERSION="1.11.7"
+ARG KAPACITOR_VERSION="1.8.9-1"
 RUN \
     apt-get update \
     && apt-get install -y --no-install-recommends \
