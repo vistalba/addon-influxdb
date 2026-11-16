@@ -11,6 +11,8 @@ This is a **maintained fork** of the archived [`hassio-addons/addon-influxdb`](h
 | Kapacitor | 1.8.9-1 |
 | Base image | `ghcr.io/hassio-addons/debian-base:9.5.2` |
 
+Full release history: [add-on changelog](influxdb/changelog.md) (also shown in the Home Assistant add-on dialog under **Changelog**).
+
 <div style="background-color:#e7f1ff; border-left:4px solid #2f80ed; padding:12px 16px; border-radius:4px;">
   <strong>ℹ️ 32-bit (<code>armv7</code>) support dropped:</strong> the 9.5.1 base image
   only ships <code>amd64</code> and <code>aarch64</code>.
